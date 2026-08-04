@@ -1,11 +1,24 @@
 "use client";
 
-import { useState } from "react";
-import { branches, contactEmail, serviceOptions } from "@/lib/data";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { branches, contactEmail } from "@/lib/data";
+import type { Service } from "@/lib/services";
 import { ArrowRightIcon, MapPinIcon } from "./icons";
 
 const inputClass =
   "w-full bg-charcoal-light border border-white/10 hover:border-gold/30 focus:border-gold rounded-xl px-4 py-3 text-white placeholder-gray-600 text-sm outline-none transition-colors";
+
+const priceFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+  maximumFractionDigits: 0,
+});
+
+type Props = {
+  services: Service[];
+  initialServiceSlug?: string;
+};
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -16,8 +29,32 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
-export default function Contact() {
-  const [submitted, setSubmitted] = useState(false);
+function formatServiceOption(service: Service): string {
+  return `${service.name} - ${priceFormatter.format(service.price)}`;
+}
+
+export default function Contact({ services, initialServiceSlug }: Props) {
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const servicesBySlug = useMemo(
+    () => new Map(services.map((service) => [service.slug, service])),
+    [services]
+  );
+  const requestedSlug = searchParams.get("service") ?? initialServiceSlug ?? "";
+  const preselectedSlug = servicesBySlug.has(requestedSlug) ? requestedSlug : "";
+  const [selectedSlug, setSelectedSlug] = useState(preselectedSlug);
+
+  useEffect(() => {
+    setSelectedSlug(preselectedSlug);
+  }, [preselectedSlug]);
+
+  // The homepage quick form no longer POSTs free text (D-14: the /api/bookings path
+  // is retired). It routes into the real /book flow, preserving the chosen service so
+  // that step 1 is pre-selected there.
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    router.push(selectedSlug ? `/book?service=${selectedSlug}` : "/book");
+  }
 
   return (
     <section id="contact" className="py-24 bg-charcoal-light">
@@ -30,8 +67,9 @@ export default function Contact() {
                 Book Your <span className="gold-gradient">Appointment</span>
               </h2>
               <p className="text-gray-400 leading-relaxed">
-                Ready for your transformation? Fill in the form and we&apos;ll reach out to confirm
-                your appointment. Walk-ins are also welcome during business hours.
+                Ready for your transformation? Choose a service and continue to
+                our booking flow to pick a real open time. Walk-ins are also
+                welcome during business hours.
               </p>
             </div>
 
@@ -87,81 +125,50 @@ export default function Contact() {
           </div>
 
           <div className="bg-charcoal border border-white/5 rounded-2xl p-8">
-            {submitted ? (
-              <div className="text-center py-10">
-                <div className="w-16 h-16 bg-gold/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-gold" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                </div>
-                <h3 className="text-white text-xl font-serif mb-2">You&apos;re All Set!</h3>
-                <p className="text-gray-400 text-sm">
-                  We&apos;ve received your request and will confirm your appointment within 24 hours.
-                </p>
+            <form className="space-y-5" onSubmit={handleSubmit}>
+              <div className="grid sm:grid-cols-2 gap-5">
+                <Field label="First Name">
+                  <input type="text" name="firstName" placeholder="Zach" className={inputClass} />
+                </Field>
+                <Field label="Last Name">
+                  <input type="text" name="lastName" placeholder="Monroe" className={inputClass} />
+                </Field>
               </div>
-            ) : (
-              <form
-                className="space-y-5"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  setSubmitted(true);
-                }}
-              >
-                <div className="grid sm:grid-cols-2 gap-5">
-                  <Field label="First Name">
-                    <input type="text" placeholder="Zach" required className={inputClass} />
-                  </Field>
-                  <Field label="Last Name">
-                    <input type="text" placeholder="Monroe" required className={inputClass} />
-                  </Field>
-                </div>
 
-                <Field label="Email Address">
-                  <input type="email" placeholder="you@example.com" required className={inputClass} />
-                </Field>
+              <Field label="Email Address">
+                <input type="email" name="email" placeholder="you@example.com" className={inputClass} />
+              </Field>
 
-                <Field label="Phone Number">
-                  <input type="tel" placeholder="(212) 555-0000" className={inputClass} />
-                </Field>
+              <Field label="Phone Number">
+                <input type="tel" name="phone" placeholder="(212) 555-0000" className={inputClass} />
+              </Field>
 
-                <Field label="Service">
-                  <select
-                    required
-                    defaultValue=""
-                    className={`${inputClass} appearance-none cursor-pointer`}
-                  >
-                    <option value="" disabled className="bg-charcoal">
-                      Select a service...
-                    </option>
-                    {serviceOptions.map((opt) => (
-                      <option key={opt.value} value={opt.value} className="bg-charcoal">
-                        {opt.label}
-                      </option>
-                    ))}
-                  </select>
-                </Field>
-
-                <Field label="Preferred Date">
-                  <input type="date" required className={`${inputClass} [color-scheme:dark]`} />
-                </Field>
-
-                <Field label="Message (Optional)">
-                  <textarea
-                    rows={3}
-                    placeholder="Tell us about your desired style or any special requests..."
-                    className={`${inputClass} resize-none`}
-                  />
-                </Field>
-
-                <button
-                  type="submit"
-                  className="w-full bg-gold hover:bg-gold-dark text-charcoal font-bold text-sm uppercase tracking-wider py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-gold/30 flex items-center justify-center gap-2"
+              <Field label="Service">
+                <select
+                  name="service"
+                  value={selectedSlug}
+                  onChange={(event) => setSelectedSlug(event.target.value)}
+                  className={`${inputClass} appearance-none cursor-pointer`}
                 >
-                  <span>Request Appointment</span>
-                  <ArrowRightIcon className="w-4 h-4" strokeWidth={2.5} />
-                </button>
-              </form>
-            )}
+                  <option value="" disabled className="bg-charcoal">
+                    Select a service...
+                  </option>
+                  {services.map((service) => (
+                    <option key={service.slug} value={service.slug} className="bg-charcoal">
+                      {formatServiceOption(service)}
+                    </option>
+                  ))}
+                </select>
+              </Field>
+
+              <button
+                type="submit"
+                className="w-full bg-gold hover:bg-gold-dark text-charcoal font-bold text-sm uppercase tracking-wider py-4 rounded-xl transition-all duration-300 hover:shadow-xl hover:shadow-gold/30 flex items-center justify-center gap-2"
+              >
+                <span>Continue to Booking</span>
+                <ArrowRightIcon className="w-4 h-4" strokeWidth={2.5} />
+              </button>
+            </form>
           </div>
         </div>
       </div>

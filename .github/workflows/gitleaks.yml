@@ -8,11 +8,14 @@ jobs:
     name: secret scan
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0 # full history so gitleaks can scan every commit
-      - uses: gitleaks/gitleaks-action@v2
+      - uses: gitleaks/gitleaks-action@e0c47f4f8be36e29cdc102c57e68cb5cbf0e8d1e # v3.0.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # The action's default gitleaks (8.24.3) predates global [[allowlists]]
+          # support (v8.25.0+) and ignores .gitleaks.toml allowlists — pin >= 8.25.
+          GITLEAKS_VERSION: 8.30.1
           # Org-owned repos may require a license key; uncomment if prompted:
           # GITLEAKS_LICENSE: ${{ secrets.GITLEAKS_LICENSE }}

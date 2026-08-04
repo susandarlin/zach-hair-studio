@@ -1,58 +1,14 @@
 export type NavLink = { label: string; href: string };
 
+// Root-relative so the nav works from any route (e.g. /book), not just the homepage.
+// A bare "#services" would resolve against the current path and go nowhere off "/".
 export const navLinks: NavLink[] = [
-  { label: "Home", href: "#home" },
-  { label: "Services", href: "#services" },
-  { label: "Gallery", href: "#gallery" },
-  { label: "Team", href: "#team" },
-  { label: "Reviews", href: "#reviews" },
-  { label: "Contact", href: "#contact" },
-];
-
-export type Service = {
-  title: string;
-  description: string;
-  price: string;
-  /** SVG path data for the service icon */
-  icon: string;
-};
-
-export const services: Service[] = [
-  {
-    title: "Precision Cut",
-    description:
-      "Tailored haircuts designed to complement your face shape and lifestyle perfectly.",
-    price: "$35",
-    icon: "M14.121 14.121L19 19m-7-7l7-7m-7 7l-2.879 2.879M12 12L9.121 9.121m0 5.758a3 3 0 10-4.243 4.243 3 3 0 004.243-4.243zm0-5.758a3 3 0 10-4.243-4.243 3 3 0 004.243 4.243z",
-  },
-  {
-    title: "Color & Highlights",
-    description:
-      "Vibrant color treatments and natural-looking highlights using premium products.",
-    price: "$80",
-    icon: "M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01",
-  },
-  {
-    title: "Blowout & Styling",
-    description:
-      "Professional blowouts and styling for any occasion — weddings, events, or everyday glam.",
-    price: "$55",
-    icon: "M5 3v4M3 5h4M6 17v4m-2-2h4m5-16l2.286 6.857L21 12l-5.714 2.143L13 21l-2.286-6.857L5 12l5.714-2.143L13 3z",
-  },
-  {
-    title: "Keratin Treatment",
-    description:
-      "Smoothing treatments that eliminate frizz and add lasting shine and manageability.",
-    price: "$120",
-    icon: "M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z",
-  },
-  {
-    title: "Scalp Treatment",
-    description:
-      "Revitalizing scalp therapies to promote health, hydration, and hair growth.",
-    price: "$65",
-    icon: "M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z",
-  },
+  { label: "Home", href: "/#home" },
+  { label: "Services", href: "/#services" },
+  { label: "Gallery", href: "/#gallery" },
+  { label: "Team", href: "/#team" },
+  { label: "Reviews", href: "/#reviews" },
+  { label: "Contact", href: "/#contact" },
 ];
 
 export type GalleryItem = {
@@ -121,7 +77,7 @@ export type TeamMember = {
 
 export const team: TeamMember[] = [
   {
-    name: "Mr. Zachary",
+    name: "Zin Min",
     role: "Founder & Master Stylist",
     bio: "Leading Zach Hair Studio with 18 years of expertise in the hair industry.",
     avatar:
@@ -130,7 +86,7 @@ export const team: TeamMember[] = [
     status: "green",
   },
   {
-    name: "Aria Chen",
+    name: "May Yoon",
     role: "Color Specialist",
     bio: "Expert in balayage, ombre, and vivid color transformations.",
     avatar:
@@ -139,7 +95,7 @@ export const team: TeamMember[] = [
     status: "green",
   },
   {
-    name: "Marcus Lee",
+    name: "Thiri Cho",
     role: "Texture & Curl Expert",
     bio: "Specializing in natural hair, curls, and protective styling.",
     avatar:
@@ -148,7 +104,7 @@ export const team: TeamMember[] = [
     status: "yellow",
   },
   {
-    name: "Sofia Reyes",
+    name: "Sai Min Htet",
     role: "Bridal & Event Stylist",
     bio: "Creating unforgettable looks for weddings and special occasions.",
     avatar:
@@ -192,15 +148,6 @@ export const reviews: Review[] = [
     initial: "P",
     avatar: "bg-gradient-to-br from-rose-600 to-rose-800",
   },
-];
-
-export const serviceOptions = [
-  { value: "cut", label: "Precision Cut – $35" },
-  { value: "color", label: "Color & Highlights – $80" },
-  { value: "blowout", label: "Blowout & Styling – $55" },
-  { value: "keratin", label: "Keratin Treatment – $120" },
-  { value: "scalp", label: "Scalp Treatment – $65" },
-  { value: "package", label: "Full Glam Package – $199" },
 ];
 
 export const branches = [
