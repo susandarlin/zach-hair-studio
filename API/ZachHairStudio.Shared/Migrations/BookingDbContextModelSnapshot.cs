@@ -587,6 +587,194 @@ namespace ZachHairStudio.Shared.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ZachHairStudio.Shared.Features.Products.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Category")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("ImageUrl")
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("LongDescription")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<decimal>("Price")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("ShortDescription")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)");
+
+                    b.Property<string>("Slug")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<int>("Stock")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Slug")
+                        .IsUnique();
+
+                    b.ToTable("Products");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Category = "Hair Care",
+                            IsActive = true,
+                            LongDescription = "A lightweight leave-in serum formulated to extend the smoothing effects of a keratin treatment between salon visits. Applies to damp or dry hair to reduce frizz and add shine without weighing hair down.",
+                            Name = "Leave-In Repair Serum",
+                            Price = 24.00m,
+                            ShortDescription = "A lightweight leave-in serum that locks in smoothness after a keratin service.",
+                            Slug = "leave-in-repair-serum",
+                            Stock = 40
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Category = "Hair Care",
+                            IsActive = true,
+                            LongDescription = "A sulfate-free, color-safe shampoo designed to preserve tone and shine after a color or highlight service. Gently cleanses without stripping the color molecules that give fresh color its vibrancy.",
+                            Name = "Color-Safe Shampoo",
+                            Price = 18.00m,
+                            ShortDescription = "A sulfate-free shampoo that protects vibrant color and highlights from fading.",
+                            Slug = "color-safe-shampoo",
+                            Stock = 60
+                        },
+                        new
+                        {
+                            Id = 3,
+                            Category = "Hair Care",
+                            IsActive = true,
+                            LongDescription = "A nourishing, color-safe conditioner formulated to pair with the color-safe shampoo. Softens and detangles while helping lock in color vibrancy between coloring appointments.",
+                            Name = "Color-Safe Conditioner",
+                            Price = 19.00m,
+                            ShortDescription = "A nourishing conditioner that pairs with our color-safe shampoo to extend color life.",
+                            Slug = "color-safe-conditioner",
+                            Stock = 55
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Category = "Styling",
+                            IsActive = true,
+                            LongDescription = "A flexible-hold styling cream that adds definition and texture without stiffness, perfect for extending a fresh blowout or building volume for an event-ready look.",
+                            Name = "Texturizing Styling Cream",
+                            Price = 22.00m,
+                            ShortDescription = "A flexible-hold cream for defined texture and movement after a blowout.",
+                            Slug = "texturizing-styling-cream",
+                            Stock = 0
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Category = "Styling",
+                            IsActive = true,
+                            LongDescription = "A lightweight, non-greasy spray applied before blow-drying or hot tools to shield hair from heat damage, helping styled looks last longer between salon visits.",
+                            Name = "Heat Protectant Spray",
+                            Price = 16.00m,
+                            ShortDescription = "A lightweight spray that shields hair from heat styling damage.",
+                            Slug = "heat-protectant-spray",
+                            Stock = 50
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Category = "Treatments",
+                            IsActive = true,
+                            LongDescription = "A soothing, lightweight scalp oil blended to extend the hydrating benefits of an in-salon scalp treatment. Massage into the scalp between visits to support comfort and a healthier hair environment.",
+                            Name = "Revitalizing Scalp Oil",
+                            Price = 28.00m,
+                            ShortDescription = "A soothing scalp oil that extends the benefits of an in-salon scalp treatment.",
+                            Slug = "revitalizing-scalp-oil",
+                            Stock = 30
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Category = "Styling",
+                            IsActive = false,
+                            LongDescription = "A retired matte styling wax no longer sold in the studio. Present only so the inactive-product 404 and enumeration-safety paths have a real seeded row to exercise.",
+                            Name = "Discontinued Styling Wax",
+                            Price = 15.00m,
+                            ShortDescription = "A retired matte styling wax, kept only to exercise the inactive-product path.",
+                            Slug = "discontinued-styling-wax",
+                            Stock = 0
+                        });
+                });
+
+            modelBuilder.Entity("ZachHairStudio.Shared.Features.Products.ServiceRecommendedProduct", b =>
+                {
+                    b.Property<int>("ServiceId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ServiceId", "ProductId");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ServiceRecommendedProduct");
+
+                    b.HasData(
+                        new
+                        {
+                            ServiceId = 4,
+                            ProductId = 1
+                        },
+                        new
+                        {
+                            ServiceId = 2,
+                            ProductId = 2
+                        },
+                        new
+                        {
+                            ServiceId = 2,
+                            ProductId = 3
+                        },
+                        new
+                        {
+                            ServiceId = 3,
+                            ProductId = 4
+                        },
+                        new
+                        {
+                            ServiceId = 3,
+                            ProductId = 5
+                        },
+                        new
+                        {
+                            ServiceId = 5,
+                            ProductId = 6
+                        });
+                });
+
             modelBuilder.Entity("ZachHairStudio.Shared.Features.Services.Service", b =>
                 {
                     b.Property<int>("Id")
@@ -857,6 +1045,21 @@ namespace ZachHairStudio.Shared.Migrations
                         .IsRequired();
 
                     b.Navigation("Appointment");
+                });
+
+            modelBuilder.Entity("ZachHairStudio.Shared.Features.Products.ServiceRecommendedProduct", b =>
+                {
+                    b.HasOne("ZachHairStudio.Shared.Features.Products.Product", null)
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ZachHairStudio.Shared.Features.Services.Service", null)
+                        .WithMany()
+                        .HasForeignKey("ServiceId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("ZachHairStudio.Shared.Features.Appointments.Appointment", b =>

@@ -18,8 +18,8 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Service Catalog** - Clients browse services (name, description, duration, price); API built on a real service layer from day one (completed 2026-07-09)
 - [x] **Phase 2: Booking Core** - Clients pick a service, see real open slots, and confirm a double-booking-safe appointment (completed 2026-07-10)
 - [x] **Phase 3: Staff Dashboard (Schedule)** - Staff view the day's/week's appointments and update status behind a staff-only auth gate (completed 2026-07-16)
-- [ ] **Phase 4: Staff Management (Services & Availability)** - Staff self-serve CRUD for services and stylist availability, conflict-checked against existing bookings
-- [ ] **Phase 5: Product Catalog** - Clients browse a curated product catalog surfaced as stylist-recommended add-ons
+- [x] **Phase 4: Staff Management (Services & Availability)** - Staff self-serve CRUD for services and stylist availability, conflict-checked against existing bookings (completed 2026-08-09)
+- [x] **Phase 5: Product Catalog** - Clients browse a curated product catalog surfaced as stylist-recommended add-ons (completed 2026-08-09)
 - [ ] **Phase 6: Cart & Checkout** - Clients buy recommended products through a trustworthy, server-authoritative checkout, as a guest or logged in
 - [ ] **Phase 7: Accounts & Retention** - Clients get accounts (shared Identity with staff), booking/order history, self-service cancel/reschedule, and loyalty groundwork
 - [ ] **Phase 8: Polish & Launch Readiness** - Responsive polish, production hardening, and retirement of the legacy Admin scaffold
@@ -183,7 +183,7 @@ Plans:
 
 ### Phase 5: Product Catalog
 
-**Goal**: Clients can browse a curated product catalog, framed as stylist-recommended extensions of the services they care about, not a general storefront.
+**Goal**: As a client, I want to browse a curated, stylist-recommended product catalog tied to the services I care about, so that I can find products my stylist actually recommends without wading through a general storefront.
 **Mode:** mvp
 **Depends on**: Phase 4 (sequenced after the service experience is complete, per the services-first priority — no functional dependency on Phase 4 itself)
 **Requirements**: PROD-01, PROD-02, PROD-03
@@ -193,12 +193,21 @@ Plans:
   2. Client can open a product detail page
   3. A service detail page surfaces a curated set of stylist-recommended products tied to that specific service
 
-**Plans**: TBD
+**Plans**: 2/2 plans executed
+Plans:
+**Wave 1**
+
+- [x] 05-01-PLAN.md — Product/ServiceRecommendedProduct backend: entity, DTOs, ProductsService/Controller, AddProducts migration + seed, extended ServicesService recommendations (PROD-01, PROD-02, PROD-03)
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 05-02-PLAN.md — /products catalog + detail pages, extended ServiceSchema, Recommended Products section on service detail (PROD-01, PROD-02, PROD-03)
+
 **UI hint**: yes
 
 ### Phase 6: Cart & Checkout
 
-**Goal**: Clients can add recommended products to a cart and complete a real, trustworthy purchase — server-authoritative pricing, atomic stock decrement, and payment-confirmed fulfillment — without needing an account.
+**Goal**: As a client, I want to add recommended products to a cart and check out as a guest with trustworthy, server-verified pricing and stock, so that I can complete a real purchase without creating an account.
 **Mode:** mvp
 **Depends on**: Phase 5 (needs product price/stock to sell)
 **Requirements**: SHOP-01, SHOP-02, SHOP-03, SHOP-04, SHOP-05, SHOP-06, SHOP-07
@@ -216,7 +225,7 @@ Plans:
 
 ### Phase 7: Accounts & Retention
 
-**Goal**: Clients can create an account to see their booking/order history and manage upcoming appointments themselves, sharing one identity system with staff auth, with strict per-client ownership boundaries and initial loyalty groundwork.
+**Goal**: As a client, I want to create an account to see my booking and order history and manage my upcoming appointments myself, so that I do not have to call the salon for things I can handle on my own.
 **Mode:** mvp
 **Depends on**: Phase 2 (booking history source), Phase 3 (extends the lightweight staff auth scheme into full Identity — one schema, not two), Phase 6 (order history source; guest checkout already shipped independently so this phase is additive, not blocking)
 **Requirements**: ACCT-01, ACCT-02, ACCT-03, ACCT-04, ACCT-05, ACCT-06, ACCT-07
@@ -234,7 +243,7 @@ Plans:
 
 ### Phase 8: Polish & Launch Readiness
 
-**Goal**: The site is production-ready — responsive, secure by default, observable, and deployed against a properly migrated production database — with the legacy Admin scaffold fully retired in favor of `dashboard/`.
+**Goal**: As a salon owner, I want to launch on a responsive, secure-by-default, observable site running a properly migrated production database with the legacy Admin scaffold retired, so that I can go live with confidence and no lingering legacy risk.
 **Mode:** mvp
 **Depends on**: Phase 7 (and all prior phases — this is the final hardening/launch pass over the complete system)
 **Requirements**: LAUNCH-01, LAUNCH-02, LAUNCH-03, LAUNCH-04, LAUNCH-05
@@ -257,10 +266,10 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | Phase | Plans Complete | Status | Completed |
 |-------|-----------------|--------|-----------|
 | 1. Service Catalog | 4/4 | Complete    | 2026-07-09 |
-| 2. Booking Core | 9/9 | In Progress|  |
+| 2. Booking Core | 9/9 | Complete    | 2026-08-09 |
 | 3. Staff Dashboard (Schedule) | 5/5 | Complete    | 2026-07-16 |
-| 4. Staff Management (Services & Availability) | 7/7 | In Progress|  |
-| 5. Product Catalog | 0/TBD | Not started | - |
+| 4. Staff Management (Services & Availability) | 7/7 | Complete    | 2026-08-09 |
+| 5. Product Catalog | 2/2 | Complete    | 2026-08-09 |
 | 6. Cart & Checkout | 0/TBD | Not started | - |
 | 7. Accounts & Retention | 0/TBD | Not started | - |
 | 8. Polish & Launch Readiness | 0/TBD | Not started | - |
