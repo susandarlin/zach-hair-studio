@@ -49,31 +49,31 @@ Requirements for the current milestone (full services-led platform, specs roadma
 
 ### Cart & Checkout (P6)
 
-- [ ] **SHOP-01**: Client can add products to a cart and review it
-- [ ] **SHOP-02**: Client can check out and pay through an integrated payment provider
-- [ ] **SHOP-03**: Order total is computed server-side from the catalog; client-supplied prices are never trusted
-- [ ] **SHOP-04**: Product stock is decremented atomically on order creation, with no overselling under concurrent checkout
-- [ ] **SHOP-05**: Order fulfillment is confirmed only via a verified payment webhook, not the client redirect
-- [ ] **SHOP-06**: Guest checkout works without an account (`Order.ClientId` nullable)
-- [ ] **SHOP-07**: Stylist-recommended add-ons are surfaced at checkout
+- [x] **SHOP-01**: Client can add products to a cart and review it
+- [x] **SHOP-02**: Client can check out and pay through an integrated payment provider
+- [x] **SHOP-03**: Order total is computed server-side from the catalog; client-supplied prices are never trusted
+- [x] **SHOP-04**: Product stock is decremented atomically on order creation, with no overselling under concurrent checkout
+- [x] **SHOP-05**: Order fulfillment is confirmed only via a verified payment webhook, not the client redirect
+- [x] **SHOP-06**: Guest checkout works without an account (`Order.ClientId` nullable)
+- [x] **SHOP-07**: Stylist-recommended add-ons are surfaced at checkout
 
 ### Accounts & Retention (P7)
 
-- [ ] **ACCT-01**: Client can create an account and log in
-- [ ] **ACCT-02**: Client can view their booking history
-- [ ] **ACCT-03**: Client can view their order history
-- [ ] **ACCT-04**: Client can cancel or reschedule their own upcoming appointment (self-service)
-- [ ] **ACCT-05**: Client accounts and staff authentication share a single ASP.NET Core Identity setup (one schema/migration)
-- [ ] **ACCT-06**: A client can access only their own bookings and orders (ownership checks prevent IDOR)
-- [ ] **ACCT-07**: Loyalty groundwork — client earns points per completed appointment, redeemable as a discount
+- [x] **ACCT-01**: Client can create an account and log in
+- [x] **ACCT-02**: Client can view their booking history
+- [x] **ACCT-03**: Client can view their order history
+- [x] **ACCT-04**: Client can cancel or reschedule their own upcoming appointment (self-service)
+- [x] **ACCT-05**: Client accounts and staff authentication share a single ASP.NET Core Identity setup (one schema/migration)
+- [x] **ACCT-06**: A client can access only their own bookings and orders (ownership checks prevent IDOR)
+- [x] **ACCT-07**: Loyalty groundwork — client earns points per completed appointment, redeemable as a discount
 
 ### Polish & Launch Readiness (P8)
 
-- [ ] **LAUNCH-01**: Public site and dashboard pass a responsive/mobile and visual-polish review
-- [ ] **LAUNCH-02**: CORS is restricted to known origins in production (no `AllowAnyOrigin`)
-- [ ] **LAUNCH-03**: Production SQL Server is configured and schema is applied via a controlled migration path (not startup `db.Database.Migrate()`)
-- [ ] **LAUNCH-04**: The API emits structured logs across requests and key operations
-- [ ] **LAUNCH-05**: Sensitive endpoints (auth, checkout) have basic hardening (rate limiting)
+- [x] **LAUNCH-01**: Public site and dashboard pass a responsive/mobile and visual-polish review
+- [x] **LAUNCH-02**: CORS is restricted to known origins in production (no `AllowAnyOrigin`)
+- [x] **LAUNCH-03**: Production SQL Server is configured and schema is applied via a controlled migration path (not startup `db.Database.Migrate()`)
+- [x] **LAUNCH-04**: The API emits structured logs across requests and key operations
+- [x] **LAUNCH-05**: Sensitive endpoints (auth, checkout) have basic hardening (rate limiting)
 
 ## v2 Requirements
 
@@ -135,25 +135,25 @@ Which phases cover which requirements. Populated during roadmap creation.
 | PROD-01 | Phase 5 | Complete |
 | PROD-02 | Phase 5 | Complete |
 | PROD-03 | Phase 5 | Complete |
-| SHOP-01 | Phase 6 | Pending |
-| SHOP-02 | Phase 6 | Pending |
-| SHOP-03 | Phase 6 | Pending |
-| SHOP-04 | Phase 6 | Pending |
-| SHOP-05 | Phase 6 | Pending |
-| SHOP-06 | Phase 6 | Pending |
-| SHOP-07 | Phase 6 | Pending |
-| ACCT-01 | Phase 7 | Pending |
-| ACCT-02 | Phase 7 | Pending |
-| ACCT-03 | Phase 7 | Pending |
-| ACCT-04 | Phase 7 | Pending |
-| ACCT-05 | Phase 7 | Pending |
-| ACCT-06 | Phase 7 | Pending |
-| ACCT-07 | Phase 7 | Pending |
-| LAUNCH-01 | Phase 8 | Pending |
-| LAUNCH-02 | Phase 8 | Pending |
-| LAUNCH-03 | Phase 8 | Pending |
-| LAUNCH-04 | Phase 8 | Pending |
-| LAUNCH-05 | Phase 8 | Pending |
+| SHOP-01 | Phase 6 | Complete |
+| SHOP-02 | Phase 6 | Complete |
+| SHOP-03 | Phase 6 | Complete |
+| SHOP-04 | Phase 6 | Complete |
+| SHOP-05 | Phase 6 | Complete |
+| SHOP-06 | Phase 6 | Complete |
+| SHOP-07 | Phase 6 | Complete |
+| ACCT-01 | Phase 7 | Complete |
+| ACCT-02 | Phase 7 | Complete |
+| ACCT-03 | Phase 7 | Complete |
+| ACCT-04 | Phase 7 | Complete |
+| ACCT-05 | Phase 7 | Complete |
+| ACCT-06 | Phase 7 | Complete |
+| ACCT-07 | Phase 7 | Complete |
+| LAUNCH-01 | Phase 8 | Complete |
+| LAUNCH-02 | Phase 8 | Complete |
+| LAUNCH-03 | Phase 8 | Complete |
+| LAUNCH-04 | Phase 8 | Complete |
+| LAUNCH-05 | Phase 8 | Complete |
 
 **Coverage:**
 

@@ -15,14 +15,16 @@ Each phase is a vertical slice (DB → API → UI) that is shippable and verifia
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [x] **Phase 1: Service Catalog** - Clients browse services (name, description, duration, price); API built on a real service layer from day one (completed 2026-07-09)
+- [x] **Phase 1: Service Catalog** - Clients browse services (name, description, duration, price); API built on a real service layer from day one
+ (completed 2026-07-09)
+
 - [x] **Phase 2: Booking Core** - Clients pick a service, see real open slots, and confirm a double-booking-safe appointment (completed 2026-07-10)
 - [x] **Phase 3: Staff Dashboard (Schedule)** - Staff view the day's/week's appointments and update status behind a staff-only auth gate (completed 2026-07-16)
 - [x] **Phase 4: Staff Management (Services & Availability)** - Staff self-serve CRUD for services and stylist availability, conflict-checked against existing bookings (completed 2026-08-09)
 - [x] **Phase 5: Product Catalog** - Clients browse a curated product catalog surfaced as stylist-recommended add-ons (completed 2026-08-09)
 - [ ] **Phase 6: Cart & Checkout** - Clients buy recommended products through a trustworthy, server-authoritative checkout, as a guest or logged in
-- [ ] **Phase 7: Accounts & Retention** - Clients get accounts (shared Identity with staff), booking/order history, self-service cancel/reschedule, and loyalty groundwork
-- [ ] **Phase 8: Polish & Launch Readiness** - Responsive polish, production hardening, and retirement of the legacy Admin scaffold
+- [x] **Phase 7: Accounts & Retention** - Clients get accounts (shared Identity with staff), booking/order history, self-service cancel/reschedule, and loyalty groundwork (completed 2026-08-10)
+- [x] **Phase 8: Polish & Launch Readiness** - Responsive polish, production hardening, and retirement of the legacy Admin scaffold (completed 2026-08-11)
 
 ## Phase Details
 
@@ -219,7 +221,25 @@ Plans:
   4. An order is marked fulfilled only after a verified payment-provider webhook fires, never from the client's post-payment redirect alone
   5. Stylist-recommended add-ons are surfaced both on the service detail page and again at checkout
 
-**Plans**: TBD
+**Plans**: 4/5 plans executed
+Plans:
+**Wave 1**
+
+- [x] 06-01-PLAN.md — Guest cart API: ConflictError overload, Cart/CartItem, CartsService/Controller, AddCarts migration (SHOP-01)
+
+**Wave 2** *(blocked on Wave 1)*
+
+- [x] 06-02-PLAN.md — Guest cart UI: session header, Add to Cart, Navbar badge, /cart review (SHOP-01)
+- [x] 06-03-PLAN.md — Checkout API + fake IPaymentProvider: server totals, atomic stock, guest ClientId null (SHOP-02, SHOP-03, SHOP-04, SHOP-06)
+
+**Wave 3** *(blocked on Wave 2)*
+
+- [x] 06-04-PLAN.md — Checkout UI + SHOP-07 chips + success/cancel display-only (SHOP-02, SHOP-05, SHOP-07)
+
+**Wave 4** *(blocked on Wave 3)*
+
+- [ ] 06-05-PLAN.md — Stripe.net + webhook fulfillment + StockConcurrencyTests + Stripe CLI human verify (SHOP-02, SHOP-04, SHOP-05)
+
 **Research flag**: yes — highest external-integration risk after Phase 2; run a focused research pass on the payment provider integration (Stripe.net), webhook-verified fulfillment, idempotency, and atomic stock-decrement mechanics before planning
 **UI hint**: yes
 
@@ -237,7 +257,29 @@ Plans:
   4. Staff authentication and client accounts share a single ASP.NET Core Identity schema/migration — not two separate auth stores
   5. A client earns a loyalty point for each completed appointment, visible in their account and redeemable as a discount
 
-**Plans**: TBD
+**Plans:** 5/5 plans complete
+
+Plans:
+**Wave 1**
+
+- [x] 07-01-PLAN.md — Client register/login E2E: Client role + JWT + landing /account auth + Navbar
+
+**Wave 2** *(blocked on Wave 1 completion)*
+
+- [x] 07-02-PLAN.md — Ownership-gated bookings/orders history + claim-by-email + Bookings|Orders tabs
+
+**Wave 3** *(blocked on Wave 2 completion)*
+
+- [x] 07-03-PLAN.md — Self-service cancel + transactional cancel-and-rebook reschedule
+
+**Wave 4** *(blocked on Wave 3 completion)*
+
+- [x] 07-04-PLAN.md — LoyaltyLedger earn on Completed + server checkout redeem
+
+**Wave 5** *(gap closure — blocked on Wave 3 ownership/cancel surface)*
+
+- [x] 07-05-PLAN.md — Attach ClientUserId on public book (API + landing Bearer) + claim re-entry + regression
+
 **Research flag**: yes — auth provider/session strategy is an explicit open decision in PROJECT.md; re-verify the ASP.NET Core Identity vs. Auth.js/Better Auth landscape immediately before planning this phase
 **UI hint**: yes
 
@@ -255,7 +297,28 @@ Plans:
   4. The API emits structured logs across requests and key operations (bookings, checkout, auth)
   5. Auth and checkout endpoints have basic rate limiting in place
 
-**Plans**: TBD
+**Plans:** 5/5 plans complete
+
+**Wave 1**
+
+- [x] 08-01-PLAN.md — Production CORS allowlist + delete ZachHairStudio.Admin
+
+**Wave 2**
+
+- [x] 08-02-PLAN.md — Skip Migrate in Production + pending-migration fail-fast + runbook
+
+**Wave 3**
+
+- [x] 08-03-PLAN.md — JSON structured logging + key-op events
+
+**Wave 4**
+
+- [x] 08-04-PLAN.md — RateLimiter on auth + checkout
+
+**Wave 5**
+
+- [x] 08-05-PLAN.md — Responsive polish pass + VALIDATION checklist
+
 **UI hint**: yes
 
 ## Progress
@@ -270,6 +333,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 | 3. Staff Dashboard (Schedule) | 5/5 | Complete    | 2026-07-16 |
 | 4. Staff Management (Services & Availability) | 7/7 | Complete    | 2026-08-09 |
 | 5. Product Catalog | 2/2 | Complete    | 2026-08-09 |
-| 6. Cart & Checkout | 0/TBD | Not started | - |
-| 7. Accounts & Retention | 0/TBD | Not started | - |
-| 8. Polish & Launch Readiness | 0/TBD | Not started | - |
+| 6. Cart & Checkout | 4/5 | In Progress|  |
+| 7. Accounts & Retention | 5/5 | Complete    | 2026-08-10 |
+| 8. Polish & Launch Readiness | 5/5 | Complete    | 2026-08-11 |

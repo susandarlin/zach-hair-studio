@@ -145,9 +145,12 @@ public class AnyStylistAssignmentTests
         return new AppointmentsService(
             db,
             new AppointmentCreateDtoValidator(),
+            new ClientRescheduleRequestDtoValidator(),
             slotService,
             email ?? new RecordingEmailService(),
-            salonOptions);
+            salonOptions,
+            new ZachHairStudio.Shared.Features.Loyalty.LoyaltyService(db),
+            Microsoft.Extensions.Logging.Abstractions.NullLogger<AppointmentsService>.Instance);
     }
 
     private static BookingDbContext BuildSeededContext()

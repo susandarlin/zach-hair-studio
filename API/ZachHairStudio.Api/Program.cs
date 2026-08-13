@@ -1,17 +1,24 @@
 using System.Net.Http.Headers;
 using System.Text;
+using System.Threading.RateLimiting;
 using FluentValidation;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ZachHairStudio.Api.Mcp;
 using ZachHairStudio.Shared.Db;
+using ZachHairStudio.Shared.Features.Account;
 using ZachHairStudio.Shared.Features.Appointments;
 using ZachHairStudio.Shared.Features.Availability;
+using ZachHairStudio.Shared.Features.Carts;
 using ZachHairStudio.Shared.Features.Identity;
+using ZachHairStudio.Shared.Features.Loyalty;
+using ZachHairStudio.Shared.Features.Orders;
+using ZachHairStudio.Shared.Features.Payments;
 using ZachHairStudio.Shared.Features.Products;
 using ZachHairStudio.Shared.Features.Services;
 using ZachHairStudio.Shared.Features.Stylists;
@@ -23,6 +30,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddUserSecrets<Program>(optional: true);
 builder.Configuration.AddEnvironmentVariables();
 
+// LAUNCH-04 / D-06: JSON console logs in Production (no Serilog). Dev keeps default text console.
+if (builder.Environment.IsProduction())
+{
+    builder.Logging.ClearProviders();
+    builder.Logging.AddJsonConsole();
+}
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
 builder.Services.AddDbContext<BookingDbContext>(options =>
@@ -32,13 +46,32 @@ builder.Services.AddDbContext<BookingDbContext>(options =>
             maxRetryDelay: TimeSpan.FromSeconds(30),
             errorNumbersToAdd: null)));
 
-// AllowAnyOrigin() already admits the dashboard origin — bearer tokens don't need
-// AllowCredentials(), so no CORS change is required for the dashboard to authenticate
-// (RESEARCH Pitfall 2); production lockdown is Phase 8 (LAUNCH-02).
+// LAUNCH-02 / D-01: Production CORS allowlist from Cors:Origins (semicolon-separated).
+// Development/Testing stay permissive (AllowAnyOrigin). Bearer tokens do not need
+// AllowCredentials (RESEARCH Pitfall 2).
 builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
-        policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader());
+    {
+        if (builder.Environment.IsProduction())
+        {
+            var origins = ZachHairStudio.Api.CorsOrigins.Parse(builder.Configuration["Cors:Origins"]);
+
+            if (origins.Length == 0)
+            {
+                throw new InvalidOperationException(
+                    "Cors:Origins is required in Production (semicolon-separated landing + dashboard URLs). "
+                    + "Set via appsettings, 'dotnet user-secrets set \"Cors:Origins\" \"https://...;https://...\"', "
+                    + "or Cors__Origins env var — never AllowAnyOrigin in Production (LAUNCH-02).");
+            }
+
+            policy.WithOrigins(origins).AllowAnyMethod().AllowAnyHeader();
+        }
+        else
+        {
+            policy.AllowAnyOrigin().AllowAnyMethod().AllowAnyHeader();
+        }
+    });
 });
 
 // Status values round-trip as strings elsewhere (AppointmentResponseDto.Status), so
@@ -50,6 +83,45 @@ builder.Services.AddControllers()
 builder.Services.AddValidatorsFromAssemblyContaining<ServiceCreateDtoValidator>();
 builder.Services.AddScoped<ServicesService>();
 builder.Services.AddScoped<ProductsService>();
+builder.Services.AddScoped<CartsService>();
+
+// Stripe Checkout + webhook (SHOP-02/05, D-01). Secrets via user-secrets/env only (T-06-17).
+// ValidateOnStart in Development so a missing SecretKey/WebhookSecret fails fast locally;
+// Testing keeps FakePaymentProvider and does not require real Stripe keys.
+var stripeOptions = builder.Services.AddOptions<StripeOptions>()
+    .Bind(builder.Configuration.GetSection("Stripe"));
+if (builder.Environment.IsDevelopment())
+{
+    stripeOptions
+        .Validate(
+            options => !string.IsNullOrWhiteSpace(options.SecretKey)
+                && !string.IsNullOrWhiteSpace(options.WebhookSecret),
+            "Stripe:SecretKey and Stripe:WebhookSecret are required in Development. "
+            + "Set them via 'dotnet user-secrets set \"Stripe:SecretKey\" \"sk_test_...\"' and "
+            + "'dotnet user-secrets set \"Stripe:WebhookSecret\" \"whsec_...\"' "
+            + "(or Stripe__SecretKey / Stripe__WebhookSecret env vars) — never tracked appsettings.")
+        .ValidateOnStart();
+}
+
+builder.Services.AddSingleton(sp => sp.GetRequiredService<IOptions<StripeOptions>>().Value);
+
+if (builder.Environment.IsEnvironment("Testing"))
+{
+    builder.Services.AddScoped<IPaymentProvider, FakePaymentProvider>();
+}
+else
+{
+    builder.Services.AddSingleton<Stripe.IStripeClient>(sp =>
+    {
+        var options = sp.GetRequiredService<IOptions<StripeOptions>>().Value;
+        return new Stripe.StripeClient(options.SecretKey);
+    });
+    builder.Services.AddScoped<IPaymentProvider, StripePaymentProvider>();
+}
+
+builder.Services.AddScoped<LoyaltyService>();
+builder.Services.AddScoped<OrdersService>();
+builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<StylistsService>();
 builder.Services.Configure<SalonOptions>(builder.Configuration.GetSection("Salon"));
 // Bridge IOptions<SalonOptions> -> plain SalonOptions so Shared-project services
@@ -131,19 +203,88 @@ builder.Services
 
 builder.Services.AddAuthorization();
 
+// LAUNCH-05 / D-08: fixed-window per-IP limits on auth + checkout only.
+builder.Services.AddRateLimiter(options =>
+{
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+    options.OnRejected = async (context, token) =>
+    {
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            context.HttpContext.Response.Headers.RetryAfter =
+                ((int)retryAfter.TotalSeconds).ToString();
+        }
+
+        context.HttpContext.Response.ContentType = "application/problem+json";
+        await context.HttpContext.Response.WriteAsJsonAsync(
+            new
+            {
+                title = "Too Many Attempts",
+                detail = "Please wait a moment and try again.",
+                status = StatusCodes.Status429TooManyRequests,
+            },
+            cancellationToken: token);
+    };
+
+    options.AddPolicy("auth", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 10,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            }));
+
+    options.AddPolicy("checkout", httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 20,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+            }));
+});
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddOpenApi();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-if (!app.Environment.IsEnvironment("Testing"))
+// LAUNCH-03 / D-03–D-04: Migrate only in Development. Production applies schema via
+// `dotnet ef database update` (deploy step) and fails fast if pending migrations remain.
+// Testing skips both migrate and Owner seed (tests seed their own users).
+if (app.Environment.IsDevelopment())
 {
     using var scope = app.Services.CreateScope();
     var db = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
     db.Database.Migrate();
 
-    // Owner seed (D-04) — tests seed their own users, so this is skipped in Testing.
+    var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    await IdentitySeeder.SeedAsync(roleManager, userManager, config);
+}
+else if (app.Environment.IsProduction())
+{
+    using var scope = app.Services.CreateScope();
+    var db = scope.ServiceProvider.GetRequiredService<BookingDbContext>();
+    if (db.Database.IsRelational())
+    {
+        var pending = db.Database.GetPendingMigrations().ToList();
+        if (pending.Count > 0)
+        {
+            throw new InvalidOperationException(
+                "Production database has pending EF Core migrations: "
+                + string.Join(", ", pending)
+                + ". Apply them with `dotnet ef database update` "
+                + "(--project API/ZachHairStudio.Shared --startup-project API/ZachHairStudio.Api) "
+                + "before starting the API (LAUNCH-03). Startup Migrate() is disabled in Production.");
+        }
+    }
+
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
     var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
@@ -158,6 +299,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors();
+app.UseRateLimiter();
 if (!app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();

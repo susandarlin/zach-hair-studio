@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using ZachHairStudio.Shared.Db;
+using ZachHairStudio.Shared.Features.Payments;
 
 namespace ZachHairStudio.Api.Tests;
 
@@ -27,6 +28,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             services.AddDbContext<BookingDbContext>(options =>
                 options.UseInMemoryDatabase(_databaseName));
+
+            // Ensure checkout tests never hit a real Stripe provider (Plan 05).
+            services.RemoveAll<IPaymentProvider>();
+            services.AddScoped<IPaymentProvider, FakePaymentProvider>();
         });
     }
 

@@ -5,15 +5,15 @@ milestone_name: milestone
 current_phase: 6
 current_phase_name: Cart & Checkout
 status: planning
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-08-09T12:02:30.611Z"
-last_activity: 2026-08-09
-last_activity_desc: Phase 05 complete, transitioned to Phase 6
+stopped_at: Completed 07-05-PLAN.md (gap closure)
+last_updated: "2026-08-11T02:54:06.823Z"
+last_activity: 2026-08-11
+last_activity_desc: Phase 8 complete, transitioned to Phase 6
 progress:
-  total_phases: 5
-  completed_phases: 5
-  total_plans: 27
-  completed_plans: 27
+  total_phases: 8
+  completed_phases: 8
+  total_plans: 42
+  completed_plans: 42
 ---
 
 # Project State
@@ -23,14 +23,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-08-09)
 
 **Core value:** Booking a salon appointment is effortless — browsing services and reserving a slot is the primary, friction-free path.
-**Current focus:** Phase 05 — Product Catalog
+**Current focus:** Phase 07 — Accounts & Retention
 
 ## Current Position
 
 Phase: 6 — Cart & Checkout
 Plan: Not started
 Status: Ready to plan
-Last activity: 2026-08-09 — Phase 05 complete, transitioned to Phase 6
+Last activity: 2026-08-11 — Phase 8 complete, transitioned to Phase 6
 
 Progress: [██████████] 100%
 
@@ -38,7 +38,7 @@ Progress: [██████████] 100%
 
 **Velocity:**
 
-- Total plans completed: 31
+- Total plans completed: 41
 - Average duration: 60 min
 - Total execution time: 3h 58m
 
@@ -52,6 +52,8 @@ Progress: [██████████] 100%
 | 04                 | 7     | -      | -        |
 | 2                  | 9     | -      | -        |
 | 05                 | 2     | -      | -        |
+| 7 | 5 | - | - |
+| 8 | 5 | - | - |
 
 **Recent Trend:**
 
@@ -79,6 +81,14 @@ _Updated after each plan completion_
 | Phase 04 P07 | 20min    | 1 tasks | 1 files  |
 | Phase 05 P01 | 27min    | 3 tasks | 14 files |
 | Phase 05 P02 | 6min     | 3 tasks | 6 files  |
+| Phase 06 P01 | 6min | 2 tasks | 17 files |
+| Phase 06 P02 | 3min | 3 tasks | 9 files |
+| Phase 06 P03 | 5min | 2 tasks | 25 files |
+| Phase 06 P04 | 5min | 3 tasks | 10 files |
+| Phase 07 P01 | 7min | 3 tasks | 12 files |
+| Phase 07 P02 | 8min | 3 tasks | 20 files |
+| Phase 07 P03 | 10min | 3 tasks | 9 files |
+| Phase 07 P04 | 8min | 3 tasks | 28 files |
 
 ## Accumulated Context
 
@@ -139,6 +149,29 @@ Recent decisions affecting current work:
 - [Phase ?]: Phase 5 Plan 01: ServiceResponseDto.RecommendedProducts extends the existing DTO rather than a dedicated endpoint, resolving D-16 discretion.
 - [Phase ?]: Phase 5 Plan 02: SectionHeading's subtitle prop passed an empty string on the Recommended Products section (required by type, renders no visible text)
 - [Phase ?]: Phase 5 Plan 02: RecommendedProductCard is a deliberate small markup duplication of app/products/page.tsx's ProductCard — both Server Components, no shared client bundle concern, extraction deferred
+- [Phase 06]: Cart upsert sets absolute Quantity clamped to Products.Stock; unknown session GET returns empty items
+- [Phase 06]: Guest cart session via X-Cart-Session-Id header (max 64) because AllowAnyOrigin blocks credentialed cookies
+- [Phase 06]: Message-only Result.ConflictError overload added for stock 409 (Pitfall 7)
+- [Phase ?]: Add-to-cart is additive (current qty + selected) clamped to stock, then absolute upsert
+- [Phase ?]: Suggestion chips omitted until Plan 04 — no fake chip data for SHOP-07
+- [Phase ?]: Proceed to Checkout links to /checkout (acceptable interim until checkout plan)
+- [Phase ?]: Checkout money recomputed only from Products.Price; CheckoutRequestDto has no price/total fields (D-05)
+- [Phase ?]: Order.ClientId nullable for guest checkout; Status starts Pending and is never Fulfilled from checkout POST
+- [Phase ?]: SqliteWebApplicationFactory for checkout tests because ExecuteUpdateAsync is relational-only
+- [Phase ?]: GET /api/products/recommended-for-checkout uses repeated productIds query params
+- [Phase ?]: Reuse Plan 03 GET /api/orders/{id} for success display; no new fulfillment writer
+- [Phase ?]: Success accepts orderId/order or trailing digits from session_id (fake-{id})
+- [Phase ?]: Phase 07 Plan 01: DisplayName defaults to email local-part when omitted on client register
+- [Phase ?]: Phase 07 Plan 01: landing getSession/setSession reject non-Client roles; AUTH_UPDATED_EVENT refreshes Navbar same-tab
+- [Phase ?]: Phase 07 Plan 02: Appointment.ClientUserId FK OnDelete Restrict (no cascade-delete appointments)
+- [Phase ?]: Phase 07 Plan 02: /account redirects to /account/bookings; claim skip posts confirm=false
+- [Phase ?]: Reschedule book-new shares TryBookNewAsync with guest CreateAsync; ClientUserId set on new row
+- [Phase ?]: Until-start gate compares StartsAt <= UtcNow (same clock as create validator)
+- [Phase ?]: UI Cancel/Reschedule only for upcoming Confirmed; past/terminal view-only
+- [Phase ?]: LoyaltyReasons Earn/Redeem strings; filtered unique index on AppointmentId where Reason=Earn
+- [Phase ?]: Payment-failure compensation appends positive Redeem delta (append-only; no ledger deletes)
+- [Phase ?]: Phase 07 Plan 05: Public create attaches Client NameIdentifier only (Staff/guest null); landing Bearer + embedded claim on Bookings
+- [Phase ?]: Optional Client JWT on checkout/quote via NameIdentifier; RedeemPoints-only money authority
 
 ### Pending Todos
 
@@ -186,10 +219,16 @@ Items acknowledged and carried forward from previous milestone close:
 | -------- | ---- | ------ | ----------- |
 | _(none)_ |      |        |             |
 
+## Deferred Verification
+
+| Phase | State | Resume |
+|-------|-------|--------|
+| 6 | verification_deferred_human | /gsd-verify-work 6 |
+
 ## Session Continuity
 
-Last session: 2026-08-09T10:54:00.000Z
-Stopped at: Completed quick task 260809-n8x (fixed misplaced nosemgrep comment in chat.ts) — gitleaks is confirmed green on live CI (run 31308767427, head fe26590); semgrep fix corrected locally (0 findings, exit 0) but NOT YET PUSHED
+Last session: 2026-08-10T10:34:35.534Z
+Stopped at: Completed 07-05-PLAN.md (gap closure)
 Resume file: None
 
-Next action: Commit is local only (973b2fb) — push to origin mcp_project, then confirm PR #43's `sast (semgrep)` check-run shows conclusion=success against the new head commit (this is the third iteration on this specific check; first two attempts — becd367/f324da1 Docker fixes, then 9ae1533's nosemgrep placement — did not close it). Phase 04 remains complete — run verification (smoke test Services + Availability flows) and close out any follow-up issues.
+Next action: Re-verify Phase 07 after gap closure (`/gsd-execute-phase 7` verify step or autonomous post-execution routing), then continue to Phase 8.
